@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -42,5 +43,18 @@ public class ClientApiController {
 						.contentType(MediaType.APPLICATION_JSON)
 						.body(c));
 				
+	}
+	
+	@PostMapping("/upload/{id}")
+	public Mono<ResponseEntity<ClientApi>> uploadPhoto(@PathVariable String id, @RequestPart FilePart filePhoto) {
+		return clientApiService.findById(id).flatMap(c -> {
+			c.setPhoto(UUID.randomUUID().toString() + "-" + filePhoto.filename()
+			.replace(" ", "")
+			.replace(":", "")
+			.replace("//", ""));
+			
+			return filePhoto.transferTo(new File(path + c.getPhoto())).then(clientApiService.save(c));
+		}).map(c -> ResponseEntity.ok(c))
+				.defaultIfEmpty(ResponseEntity.notFound().build());
 	}
 }
