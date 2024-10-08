@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -127,5 +128,12 @@ public class ClientApiController {
 						.contentType(MediaType.APPLICATION_JSON)
 						.body(c))
 				.defaultIfEmpty(ResponseEntity.notFound().build());
+	}
+	
+	@DeleteMapping("/{id}")
+	public Mono<ResponseEntity<Void>> deleteClient(@PathVariable String id){
+		return clientApiService.findById(id).flatMap(c -> {
+			return clientApiService.delete(c).then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT)));
+		}).defaultIfEmpty(new ResponseEntity<Void>(HttpStatus.NOT_FOUND));
 	}
 }
