@@ -16,6 +16,7 @@ import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -111,5 +112,20 @@ public class ClientApiController {
 						return Mono.just(ResponseEntity.badRequest().body(response));
 					});
 		});
+	}
+	
+	@PutMapping("/{id}")
+	public Mono<ResponseEntity<ClientApi>> editClient(@RequestBody ClientApi clientApi, @PathVariable String id) {
+		return clientApiService.findById(id).flatMap(c -> {
+			c.setName(clientApi.getName());
+			c.setLastname(clientApi.getLastname());
+			c.setAge(clientApi.getAge());
+			c.setSalary(clientApi.getSalary());
+			
+			return clientApiService.save(c);
+		}).map(c -> ResponseEntity.created(URI.create("/api/clients/".concat(c.getId())))
+						.contentType(MediaType.APPLICATION_JSON)
+						.body(c))
+				.defaultIfEmpty(ResponseEntity.notFound().build());
 	}
 }
