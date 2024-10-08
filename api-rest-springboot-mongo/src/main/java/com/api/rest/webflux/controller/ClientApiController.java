@@ -66,7 +66,15 @@ public class ClientApiController {
 				ResponseEntity.ok()
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(clientApiService.findAll())
-				);
-				
+				);				
 	}
+	
+	@GetMapping("/{id}")
+	public Mono<ResponseEntity<ClientApi>> showClientDetails(@PathVariable String id) {
+		return clientApiService.findById(id).map(c -> ResponseEntity.ok()
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(c))
+			.defaultIfEmpty(ResponseEntity.notFound().build());
+	}
+	
 }
