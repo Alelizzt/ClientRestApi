@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.api.rest.webflux.documents.ClientApi;
 import com.api.rest.webflux.services.ClientApiService;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -56,5 +58,15 @@ public class ClientApiController {
 			return filePhoto.transferTo(new File(path + c.getPhoto())).then(clientApiService.save(c));
 		}).map(c -> ResponseEntity.ok(c))
 				.defaultIfEmpty(ResponseEntity.notFound().build());
+	}
+	
+	@GetMapping
+	public Mono<ResponseEntity<Flux<ClientApi>>> showClients() {
+		return Mono.just(
+				ResponseEntity.ok()
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(clientApiService.findAll())
+				);
+				
 	}
 }
