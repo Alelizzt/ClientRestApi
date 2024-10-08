@@ -48,7 +48,7 @@ public class ClientApiController {
 		
 		return filePhoto.transferTo(new File(path + clientApi.getPhoto()))
 				.then(clientApiService.save(clientApi))
-				.map(c -> ResponseEntity.created(URI.create("/api/clients".concat(c.getId())))
+				.map(c -> ResponseEntity.created(URI.create("/api/clients/".concat(c.getId())))
 						.contentType(MediaType.APPLICATION_JSON)
 						.body(c));
 				
